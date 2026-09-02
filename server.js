@@ -10,6 +10,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
+app.get("/", (req, res) => {
+  res.json({ message: "TCP Hardware Verification API is running", status: "ok" });
+});
+
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
