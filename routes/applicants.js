@@ -54,4 +54,22 @@ router.post("/applicants/generate-key", async (req, res) => {
   });
 });
 
+router.post("/applicants/:id/expire-key", async (req, res) => {
+  const { id } = req.params;
+
+  const { data, error } = await supabase
+    .from("applicants")
+    .update({ api_key_expires_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error || !data) {
+    res.status(404).json({ error: "Applicant not found" });
+    return;
+  }
+
+  res.json({ applicant_id: data.id, expires_at: data.api_key_expires_at });
+});
+
 export default router;

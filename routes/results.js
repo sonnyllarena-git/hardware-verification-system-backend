@@ -44,4 +44,17 @@ router.get("/", async (req, res) => {
   res.json(data.map(toResult));
 });
 
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { error } = await supabase.from("applicants").delete().eq("id", id);
+
+  if (error) {
+    res.status(500).json({ error: "Failed to delete result" });
+    return;
+  }
+
+  res.status(204).send();
+});
+
 export default router;
