@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { supabase } from "../services/supabaseClient.js";
+import { logApplicantEvent } from "../services/applicantEvents.js";
 
 const router = Router();
 
@@ -80,6 +81,7 @@ router.post("/", async (req, res) => {
     webcam_present: specs.webcamPresent,
     headset_present: specs.headsetPresent,
     pass_fail: passFail,
+    storage_drives: specs.storageDrives ?? null,
   });
 
   if (insertError) {
@@ -91,6 +93,8 @@ router.post("/", async (req, res) => {
     .from("applicants")
     .update({ status: passFail.toLowerCase() })
     .eq("id", applicant.id);
+
+  await logApplicantEvent(applicant.id, "result_submitted", { details: { result: passFail } });
 
   res.status(201).json({ status: passFail });
 });

@@ -31,6 +31,7 @@ export function toApplicantSummary(applicant) {
             cpuCores: latest.cpu_cores,
             ram: latest.ram_gb,
             storageGb: latest.storage_gb,
+            storageDrives: latest.storage_drives,
             internetDown: latest.internet_speed_down,
             internetUp: latest.internet_speed_up,
             screenResolution: latest.screen_resolution,
