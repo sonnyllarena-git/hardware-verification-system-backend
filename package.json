@@ -20,7 +20,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "resend": "^6.25.0"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
