@@ -6,7 +6,19 @@ import applicantsRouter from "./routes/applicants.js";
 
 const app = express();
 
-app.use(cors());
+// Configure CORS to allow frontend domain
+const corsOptions = {
+  origin: [
+    "https://hardware-verification-system-fronte.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173" // Vite dev server
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static("public"));
 
