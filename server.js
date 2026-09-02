@@ -4,7 +4,7 @@ import resultsRouter from "./routes/results.js";
 import submitRouter from "./routes/submit.js";
 import applicantsRouter from "./routes/applicants.js";
 
-export const app = express();
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -22,3 +22,5 @@ if (process.env.NODE_ENV !== "test") {
   const port = process.env.PORT || 3001;
   app.listen(port, () => console.log(`API listening on port ${port}`));
 }
+
+export default app;
