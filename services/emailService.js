@@ -13,6 +13,9 @@ export async function sendApplicantEmail({ to, subject, body }) {
     return { sent: false, error: "Email service not configured" };
   }
 
+  // RESEND_FROM_EMAIL must be a sender Resend has verified for this account (their own
+  // onboarding@resend.dev test address always works) — anything else fails with a 502
+  // "The domain is invalid" from Resend, not from this service.
   const { data, error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL,
     to,
