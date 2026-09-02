@@ -18,7 +18,8 @@ app.use("/api/results", resultsRouter);
 app.use("/api/submit-hardware-check", submitRouter);
 app.use("/api", applicantsRouter);
 
-if (process.env.NODE_ENV !== "test") {
+// Only start server locally, NOT on Vercel
+if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
   const port = process.env.PORT || 3001;
   app.listen(port, () => console.log(`API listening on port ${port}`));
 }
