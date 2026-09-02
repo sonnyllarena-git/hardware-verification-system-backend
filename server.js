@@ -24,4 +24,5 @@ if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
   app.listen(port, () => console.log(`API listening on port ${port}`));
 }
 
-export default app;
+// Export handler function for Vercel serverless
+export default (req, res) => app(req, res);
