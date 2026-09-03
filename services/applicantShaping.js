@@ -35,7 +35,10 @@ export function toApplicantSummary(applicant) {
             internetDown: latest.internet_speed_down,
             internetUp: latest.internet_speed_up,
             screenResolution: latest.screen_resolution,
-            screenHeight: Number(latest.screen_resolution?.split("x")[1]) || null,
+            // screen_resolution can be a comma-separated "WIDTHxHEIGHT" list (one per connected
+            // monitor, primary first — see the extension's renderDisplays()); only the primary
+            // display's height matters for compliance, so take the first entry before splitting.
+            screenHeight: Number(latest.screen_resolution?.split(",")[0]?.split("x")[1]) || null,
             webcam: latest.webcam_present,
             headset: latest.headset_present,
           },

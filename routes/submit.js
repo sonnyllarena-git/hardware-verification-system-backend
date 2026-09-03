@@ -20,8 +20,11 @@ function checkRequirement(requirement, specs) {
         ? specs.internetSpeedDown >= Number(min)
         : specs.internetSpeedUp >= Number(min);
     case "screen": {
+      // screenResolution can be a comma-separated "WIDTHxHEIGHT" list (one per connected
+      // monitor, primary first — see the extension's renderDisplays()); only the primary
+      // display's height matters for compliance, so take the first entry before splitting.
       const minHeight = Number(min.split("x")[1]);
-      const height = Number((specs.screenResolution ?? "0x0").split("x")[1]);
+      const height = Number((specs.screenResolution ?? "0x0").split(",")[0].split("x")[1]);
       return height >= minHeight;
     }
     case "hardware":
