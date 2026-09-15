@@ -4,10 +4,24 @@ import { logApplicantEvent } from "../services/applicantEvents.js";
 
 const router = Router();
 
+// compliance_requirements has one row per (requirement, OS) — see db-schema.sql's applies_to
+// column — so the caller filters `requirements` to the applicant's own OS family before this
+// ever runs; this only needs to know how to check a single OS's rule.
+function getOsFamily(osVersion) {
+  return (osVersion ?? "").startsWith("macOS") ? "macos" : "windows";
+}
+
 function checkRequirement(requirement, specs) {
   const min = requirement.min_value;
   switch (requirement.requirement_type) {
     case "os":
+      if (requirement.applies_to === "macos") {
+        // min_value like "macOS 12", specs.osVersion like "macOS 14.6.2" (see the extension's
+        // getOSLabel()) — compare major version only; fail closed if either isn't parseable.
+        const minMajor = Number(min.match(/(\d+)/)?.[1] ?? "999");
+        const applicantMajor = Number(specs.osVersion?.match(/macOS\s+(\d+)/)?.[1] ?? "-1");
+        return applicantMajor >= minMajor;
+      }
       return specs.osVersion === "Windows 10" || specs.osVersion === "Windows 11";
     case "cpu":
       return specs.cpuCores >= Number(min);
@@ -67,7 +81,11 @@ router.post("/", async (req, res) => {
   }
 
   const { data: requirements } = await supabase.from("compliance_requirements").select("*");
-  const passFail = requirements.every((r) => checkRequirement(r, specs)) ? "PASS" : "FAIL";
+  const osFamily = getOsFamily(specs.osVersion);
+  const applicableRequirements = requirements.filter((r) => r.applies_to === osFamily);
+  const passFail = applicableRequirements.every((r) => checkRequirement(r, specs))
+    ? "PASS"
+    : "FAIL";
 
   const { error: insertError } = await supabase.from("submission_results").insert({
     applicant_id: applicant.id,

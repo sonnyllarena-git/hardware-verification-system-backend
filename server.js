@@ -3,6 +3,7 @@ import cors from "cors";
 import resultsRouter from "./routes/results.js";
 import submitRouter from "./routes/submit.js";
 import applicantsRouter from "./routes/applicants.js";
+import complianceRequirementsRouter from "./routes/complianceRequirements.js";
 
 const app = express();
 
@@ -11,11 +12,11 @@ const corsOptions = {
   origin: [
     "https://hardware-verification-system-fronte.vercel.app",
     "http://localhost:3000",
-    "http://localhost:5173" // Vite dev server
+    "http://localhost:5173", // Vite dev server
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
@@ -33,6 +34,7 @@ app.get("/health", (req, res) => {
 app.use("/api/results", resultsRouter);
 app.use("/api/submit-hardware-check", submitRouter);
 app.use("/api", applicantsRouter);
+app.use("/api", complianceRequirementsRouter);
 
 // Only start server locally, NOT on Vercel
 if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
