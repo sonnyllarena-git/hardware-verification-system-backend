@@ -4,6 +4,9 @@ import resultsRouter from "./routes/results.js";
 import submitRouter from "./routes/submit.js";
 import applicantsRouter from "./routes/applicants.js";
 import complianceRequirementsRouter from "./routes/complianceRequirements.js";
+import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/users.js";
+import { requireAuth, requireAdmin } from "./middleware/auth.js";
 
 const app = express();
 
@@ -42,10 +45,17 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/api/results", resultsRouter);
+// /api/auth stays public (login, forgot-password) — individual routes inside it apply
+// requireAuth themselves where needed (change-password, security-questions setup).
+app.use("/api/auth", authRouter);
+// The rest of the API is only ever called by the staff dashboard (confirmed: the extension and
+// EXE only talk to submit-hardware-check / the Supabase RPC directly) — requiring a valid staff
+// session here closes what used to be a fully open API.
+app.use("/api/users", requireAuth, requireAdmin, usersRouter);
+app.use("/api/results", requireAuth, resultsRouter);
 app.use("/api/submit-hardware-check", submitRouter);
-app.use("/api", applicantsRouter);
-app.use("/api", complianceRequirementsRouter);
+app.use("/api", requireAuth, applicantsRouter);
+app.use("/api", requireAuth, complianceRequirementsRouter);
 
 // Only start server locally, NOT on Vercel
 if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
