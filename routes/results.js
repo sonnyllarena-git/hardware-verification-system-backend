@@ -38,7 +38,8 @@ router.get("/", async (req, res) => {
   const { data, error } = await supabase
     .from("applicants")
     .select("id, name, email, submission_results(*)")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .order("submitted_at", { foreignTable: "submission_results", ascending: false });
 
   if (error) {
     res.status(500).json({ error: "Failed to fetch results" });

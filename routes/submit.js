@@ -22,7 +22,9 @@ function checkRequirement(requirement, specs) {
         const applicantMajor = Number(specs.osVersion?.match(/macOS\s+(\d+)/)?.[1] ?? "-1");
         return applicantMajor >= minMajor;
       }
-      return specs.osVersion === "Windows 10" || specs.osVersion === "Windows 11";
+      // specs.osVersion is "Windows 10 (build N)" / "Windows 11 (build N)" from the extension's
+      // getOSLabel(), not a bare "Windows 10" — match the prefix, not the whole string.
+      return specs.osVersion?.startsWith("Windows 10") || specs.osVersion?.startsWith("Windows 11");
     case "cpu":
       return specs.cpuCores >= Number(min);
     case "ram":
