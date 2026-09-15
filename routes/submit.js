@@ -105,7 +105,6 @@ router.post("/", async (req, res) => {
     headset_present: specs.headsetPresent,
     pass_fail: passFail,
     storage_drives: specs.storageDrives ?? null,
-    network_type: specs.networkType ?? null,
   });
 
   if (insertError) {

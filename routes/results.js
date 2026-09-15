@@ -29,7 +29,6 @@ function toResult(applicant) {
           screenHeight: Number(latest.screen_resolution?.split(",")[0]?.split("x")[1]) || null,
           webcam: latest.webcam_present,
           headset: latest.headset_present,
-          networkType: latest.network_type,
         }
       : null,
   };
