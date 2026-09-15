@@ -23,6 +23,17 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static("public"));
 
+// Every /api response varies by the request's Origin header (cors() reflects it back into
+// Access-Control-Allow-Origin per-request). Vercel's edge network otherwise treats GET
+// responses as publicly cacheable by default, and its cache doesn't reliably vary by Origin
+// the way `Vary: Origin` asks it to — one origin's request can get served another origin's
+// cached response, silently breaking CORS for everyone but the first cached caller. no-store
+// opts every API response out of that shared cache entirely.
+app.use("/api", (req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
+
 app.get("/", (req, res) => {
   res.json({ message: "TCP Hardware Verification API is running", status: "ok" });
 });
