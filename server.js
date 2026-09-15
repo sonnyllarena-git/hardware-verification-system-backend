@@ -63,5 +63,7 @@ if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
   app.listen(port, () => console.log(`API listening on port ${port}`));
 }
 
-// Export handler function for Vercel serverless
+// Named export for tests (server.test.js); Vercel's Node builder needs the default export to be
+// the request handler itself, not the Express app object, so both are exported.
+export { app };
 export default (req, res) => app(req, res);

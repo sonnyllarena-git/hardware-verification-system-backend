@@ -72,6 +72,27 @@ router.put("/:id", async (req, res) => {
       res.status(400).json({ error: `Role must be one of: ${ROLES.join(", ")}` });
       return;
     }
+    if (role !== "admin") {
+      // Same lockout the DELETE guard below prevents: demoting the last admin leaves nobody who
+      // can reach Administration to promote anyone back.
+      const { data: target } = await supabase
+        .from("staff_users")
+        .select("role")
+        .eq("id", req.params.id)
+        .maybeSingle();
+
+      if (target?.role === "admin") {
+        const { count } = await supabase
+          .from("staff_users")
+          .select("id", { count: "exact", head: true })
+          .eq("role", "admin");
+
+        if ((count ?? 0) <= 1) {
+          res.status(400).json({ error: "Cannot change the role of the last remaining admin" });
+          return;
+        }
+      }
+    }
     update.role = role;
   }
   update.updated_at = new Date().toISOString();
