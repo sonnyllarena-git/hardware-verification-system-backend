@@ -69,7 +69,7 @@ router.post("/", async (req, res) => {
 
   const { data: applicant } = await supabase
     .from("applicants")
-    .select("id, api_key_expires_at")
+    .select("id, api_key_expires_at, api_key_revoked")
     .eq("api_key", apiKey)
     .single();
 
@@ -81,10 +81,21 @@ router.post("/", async (req, res) => {
     res.status(401).json({ error: "API key expired" });
     return;
   }
+  // Revoke Link (dashboard) only ever set this column — it was never actually checked here, so
+  // a revoked link kept working until it naturally expired. Same gap existed in the Supabase RPC
+  // lane (direct-submit-rpc.sql), fixed alongside this.
+  if (applicant.api_key_revoked) {
+    res.status(401).json({ error: "API key revoked" });
+    return;
+  }
 
   const { data: requirements } = await supabase.from("compliance_requirements").select("*");
   const osFamily = getOsFamily(specs.osVersion);
-  const applicableRequirements = requirements.filter((r) => r.applies_to === osFamily);
+  // `required` was previously ignored here too — a requirement toggled "Required: No" in
+  // Settings still failed every applicant who didn't meet it.
+  const applicableRequirements = requirements.filter(
+    (r) => r.applies_to === osFamily && r.required,
+  );
   const passFail = applicableRequirements.every((r) => checkRequirement(r, specs))
     ? "PASS"
     : "FAIL";
