@@ -17,6 +17,7 @@ function toResult(applicant) {
       ? {
           osVersion: latest.os_version,
           cpuCores: latest.cpu_cores,
+          cpuModel: latest.cpu_model,
           ram: latest.ram_gb,
           storageGb: latest.storage_gb,
           storageDrives: latest.storage_drives,

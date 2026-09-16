@@ -11,6 +11,24 @@ function getOsFamily(osVersion) {
   return (osVersion ?? "").startsWith("macOS") ? "macos" : "windows";
 }
 
+// Major version numbers for the only 3 macOS releases HR currently allows: Sonoma (14),
+// Sequoia (15), Tahoe (26 — Apple switched to year-based numbering in 2025, so this isn't 16).
+const APPROVED_MACOS_MAJORS = [14, 15, 26];
+
+// Any Mac (Apple Silicon or Intel) is approved purely by being on one of those 3 OS versions —
+// chip family doesn't matter for Mac. Windows instead gates on CPU family: Intel Core i5/i7/i9
+// or AMD Ryzen 3/5/7/9. Core count isn't part of this gate either way. Duplicated (by hand) in
+// direct-submit-rpc.sql and the dashboard's resultsService.js — see those files' own copies.
+function isApprovedCpu(specs) {
+  if ((specs.osVersion ?? "").startsWith("macOS")) {
+    const macMajor = Number(specs.osVersion?.match(/macOS\s+(\d+)/)?.[1] ?? "-1");
+    return APPROVED_MACOS_MAJORS.includes(macMajor);
+  }
+
+  const model = (specs.cpuModel ?? "").toLowerCase();
+  return /\bi[579]\b/.test(model) || /ryzen\s*[3579]\b/.test(model);
+}
+
 function checkRequirement(requirement, specs) {
   const min = requirement.min_value;
   switch (requirement.requirement_type) {
@@ -28,7 +46,7 @@ function checkRequirement(requirement, specs) {
       return applicantMajor >= minMajor;
     }
     case "cpu":
-      return specs.cpuCores >= Number(min);
+      return isApprovedCpu(specs);
     case "ram":
       return specs.ramGb >= Number(min);
     case "storage":
